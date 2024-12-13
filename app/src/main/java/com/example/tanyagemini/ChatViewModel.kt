@@ -18,7 +18,7 @@ class ChatViewModel : ViewModel() {
     fun onEvent(event: ChatUiEvent) {
         when (event) {
             is ChatUiEvent.SendPrompt -> {
-                if (event.prompt.isNotEmpty()) {
+                if (event.prompt.isNotEmpty() || event.bitmap != null) {
                     addPrompt(event.prompt, event.bitmap)
 
                     if (event.bitmap != null) {
@@ -26,6 +26,9 @@ class ChatViewModel : ViewModel() {
                     } else {
                         getResponse(event.prompt)
                     }
+
+                    // Reset bitmap after sending
+                    _chatState.update { it.copy(bitmap = null) }
                 }
             }
 
@@ -36,6 +39,13 @@ class ChatViewModel : ViewModel() {
             }
         }
     }
+
+//    fun clearChat() {
+//        _chatState.update {
+//            it.copy(chatList = emptyList(), prompt = "")
+//        }
+//    }
+
 
     private fun addPrompt(prompt: String, bitmap: Bitmap?) {
         _chatState.update {
