@@ -32,7 +32,8 @@ fun ModernTopBar(
     title: String = "TanyaGemini",
     onBackClick: () -> Unit = {},
     onDeleteClick: () -> Unit = {},
-    onMenuClick: () -> Unit = {}
+    onMenuClick: () -> Unit = {},
+    onAddClick: () -> Unit = {} // New parameter for Add button
 ) {
     Column {
         Box(
@@ -73,15 +74,33 @@ fun ModernTopBar(
                     )
                 }
 
-                // Trash/Delete Icon (Right)
-                Icon(
-                    painter = painterResource(id = R.drawable.trash),
-                    contentDescription = "Delete",
-                    modifier = Modifier
-                        .size(24.dp)
-                        .clickable(onClick = onDeleteClick),
-                    tint = Color.Black
-                )
+                // Right-side Icons
+                Row(
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    // Add (+) Icon
+                    Icon(
+                        painter = painterResource(id = R.drawable.add),
+                        contentDescription = "Add",
+                        modifier = Modifier
+                            .size(24.dp)
+                            .clickable(onClick = onAddClick),
+                        tint = Color.Black
+                    )
+
+                    // Spacer between Add and Trash icons
+                    Spacer(modifier = Modifier.width(16.dp))
+
+                    // Trash/Delete Icon
+                    Icon(
+                        painter = painterResource(id = R.drawable.trash),
+                        contentDescription = "Delete",
+                        modifier = Modifier
+                            .size(24.dp)
+                            .clickable(onClick = onDeleteClick),
+                        tint = Color.Black
+                    )
+                }
             }
         }
 

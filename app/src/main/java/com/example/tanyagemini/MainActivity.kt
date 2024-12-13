@@ -9,6 +9,9 @@ import androidx.activity.compose.setContent
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -37,6 +40,7 @@ import com.example.tanyagemini.ui.components.ModernChatInputSection
 import com.example.tanyagemini.ui.components.ModernModelChatItem
 import com.example.tanyagemini.ui.components.ModernTopBar
 import com.example.tanyagemini.ui.components.ModernUserChatItem
+import com.example.tanyagemini.ui.components.Sidebar
 import com.example.tanyagemini.ui.theme.TanyaGeminiTheme
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.update
@@ -59,7 +63,7 @@ class MainActivity : ComponentActivity() {
             TanyaGeminiTheme {
                 Surface(
                     modifier = Modifier.fillMaxSize(),
-                    color = Color.White // Change background to white
+                    color = Color.White
                 ) {
                     ModernChatScreen(
                         imagePicker = imagePicker,
@@ -97,6 +101,9 @@ fun ModernChatScreen(
     val chatViewModel: ChatViewModel = viewModel()
     val chatState by chatViewModel.chatState.collectAsState()
 
+    // Create sidebar state
+    val sidebarState = remember { SidebarState() }
+
     val bitmap = (LocalContext.current as MainActivity).getBitmap(uriState)
 
     // Remember the list state
@@ -107,56 +114,85 @@ fun ModernChatScreen(
     LaunchedEffect(chatState.chatList.size) {
         if (chatState.chatList.isNotEmpty()) {
             coroutineScope.launch {
-                // Scroll ke item pertama (karena reverseLayout = true)
+                // Scroll to first item (because reverseLayout = true)
                 listState.scrollToItem(0)
             }
         }
     }
 
-    Column(
-        modifier = Modifier.fillMaxSize(),
-        verticalArrangement = Arrangement.SpaceBetween
-    ) {
-        // Modern Top Bar
-        ModernTopBar(title = "TanyaGemini")
+    Box(modifier = Modifier.fillMaxSize()) {
+        Column(
+            modifier = Modifier.fillMaxSize(),
+            verticalArrangement = Arrangement.SpaceBetween
+        ) {
+            // Modern Top Bar with onMenuClick to open sidebar
+            ModernTopBar(
+                title = "TanyaGemini",
+                onMenuClick = { sidebarState.open() }
+            )
 
-        // Chat Messages List
-        Box(modifier = Modifier.weight(1f)) {
-            LazyColumn(
-                state = listState,
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(horizontal = 16.dp),
-                verticalArrangement = Arrangement.Top,
-                reverseLayout = true
-            ) {
-                items(chatState.chatList) { chat ->
-                    if (chat.isFromUser) {
-                        ModernUserChatItem(
-                            prompt = chat.prompt,
-                            bitmap = chat.bitmap
-                        )
-                    } else {
-                        ModernModelChatItem(response = chat.prompt)
+            // Chat Messages List
+            Box(modifier = Modifier.weight(1f)) {
+                LazyColumn(
+                    state = listState,
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(horizontal = 16.dp),
+                    verticalArrangement = Arrangement.Top,
+                    reverseLayout = true
+                ) {
+                    items(chatState.chatList) { chat ->
+                        if (chat.isFromUser) {
+                            ModernUserChatItem(
+                                prompt = chat.prompt,
+                                bitmap = chat.bitmap
+                            )
+                        } else {
+                            ModernModelChatItem(response = chat.prompt)
+                        }
                     }
                 }
-            }
 
-            // Floating Chat Input Section
-            ModernChatInputSection(
-                modifier = Modifier
-                    .align(Alignment.BottomCenter)
-                    .padding(bottom = 16.dp),
-                chatViewModel = chatViewModel,
-                onImagePickerClick = {
-                    imagePicker?.launch(
-                        PickVisualMediaRequest
-                            .Builder()
-                            .setMediaType(ActivityResultContracts.PickVisualMedia.ImageOnly)
-                            .build()
-                    )
+                // Floating Chat Input Section
+                ModernChatInputSection(
+                    modifier = Modifier
+                        .align(Alignment.BottomCenter)
+                        .padding(bottom = 16.dp),
+                    chatViewModel = chatViewModel,
+                    onImagePickerClick = {
+                        imagePicker?.launch(
+                            PickVisualMediaRequest
+                                .Builder()
+                                .setMediaType(ActivityResultContracts.PickVisualMedia.ImageOnly)
+                                .build()
+                        )
+                    },
+                    bitmap = bitmap
+                )
+            }
+        }
+
+        // Animated Sidebar
+        AnimatedVisibility(
+            visible = sidebarState.isOpen,
+            enter = slideInHorizontally(initialOffsetX = { -it }),
+            exit = slideOutHorizontally(targetOffsetX = { -it })
+        ) {
+            Sidebar(
+                onClose = { sidebarState.close() },
+                onNewChat = {
+                    // TODO: Implement new chat logic
+                    chatViewModel.onEvent(ChatUiEvent.UpdatePrompt(""))
+                    sidebarState.close()
                 },
-                bitmap = bitmap
+                onHistoryClick = {
+                    // TODO: Implement chat history navigation
+                    sidebarState.close()
+                },
+                onSettingsClick = {
+                    // TODO: Implement settings navigation
+                    sidebarState.close()
+                }
             )
         }
     }

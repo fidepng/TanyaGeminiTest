@@ -52,7 +52,7 @@ fun ModernUserChatItem(
         Box(
             modifier = Modifier
                 .widthIn(max = 280.dp)
-                .clip(RoundedCornerShape(32.dp))
+                .clip(RoundedCornerShape(32.dp, 0.dp, 32.dp, 32.dp))
                 .background(Color(0xFF3369FF))
                 .padding(horizontal = 24.dp, vertical = 16.dp)
         ) {
@@ -81,7 +81,7 @@ fun ModernModelChatItem(
         Box(
             modifier = Modifier
                 .widthIn(max = 280.dp)
-                .clip(RoundedCornerShape(32.dp))
+                .clip(RoundedCornerShape(32.dp, 32.dp, 32.dp, 0.dp))
                 .background(Color(0xFFF0F0F0))
                 .padding(horizontal = 24.dp, vertical = 16.dp)
         ) {
@@ -97,7 +97,7 @@ fun ModernModelChatItem(
 }
 
 // Previews
-@Preview(showBackground = true)
+@Preview(showBackground = false)
 @Composable
 fun UserChatItemPreview() {
     TanyaGeminiTheme {
@@ -108,7 +108,7 @@ fun UserChatItemPreview() {
     }
 }
 
-@Preview(showBackground = true)
+@Preview(showBackground = false)
 @Composable
 fun ModelChatItemPreview() {
     TanyaGeminiTheme {
