@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "918431809605",
+    "project_id": "tanyagemini-c4c47",
+    "storage_bucket": "tanyagemini-c4c47.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:918431809605:android:bf0d68912c4d168782232c",
+        "android_client_info": {
+          "package_name": "com.example.tanyagemini"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBiQRqq7tLb2I_SihBOFxJPnXo68DjF4QU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

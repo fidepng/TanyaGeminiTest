@@ -26,6 +26,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -33,6 +34,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.tanyagemini.data.Conversation
 import com.example.tanyagemini.ui.components.ModernChatInputSection
 import com.example.tanyagemini.ui.components.ModernModelChatItem
 import com.example.tanyagemini.ui.components.ModernTopBar
@@ -59,7 +61,7 @@ class MainActivity : ComponentActivity() {
             TanyaGeminiTheme {
                 Surface(
                     modifier = Modifier.fillMaxSize(),
-                    color = Color.White // Change background to white
+                    color = Color.White
                 ) {
                     ModernChatScreen(
                         imagePicker = imagePicker,
@@ -70,7 +72,6 @@ class MainActivity : ComponentActivity() {
         }
     }
 
-    // Existing getBitmap function
     @Composable
     fun getBitmap(uriState: MutableStateFlow<String>?): Bitmap? {
         val uri by uriState?.collectAsState() ?: remember { mutableStateOf("") }
@@ -97,6 +98,14 @@ fun ModernChatScreen(
     val chatViewModel: ChatViewModel = viewModel()
     val chatState by chatViewModel.chatState.collectAsState()
 
+    // State for tracking conversations
+    var conversations by remember { mutableStateOf(listOf<Conversation>()) }
+
+    // Fetch conversations on screen load
+    LaunchedEffect(Unit) {
+        conversations = chatViewModel.fetchConversations()
+    }
+
     val bitmap = (LocalContext.current as MainActivity).getBitmap(uriState)
 
     // Remember the list state
@@ -107,7 +116,6 @@ fun ModernChatScreen(
     LaunchedEffect(chatState.chatList.size) {
         if (chatState.chatList.isNotEmpty()) {
             coroutineScope.launch {
-                // Scroll ke item pertama (karena reverseLayout = true)
                 listState.scrollToItem(0)
             }
         }
@@ -117,8 +125,14 @@ fun ModernChatScreen(
         modifier = Modifier.fillMaxSize(),
         verticalArrangement = Arrangement.SpaceBetween
     ) {
-        // Modern Top Bar
-        ModernTopBar(title = "TanyaGemini")
+        // Modern Top Bar with Conversations
+        ModernTopBar(
+            conversations = conversations,
+            onConversationSelect = { selectedConversation ->
+                // Logic to load selected conversation
+                // You might want to update chatState with selected conversation's messages
+            }
+        )
 
         // Chat Messages List
         Box(modifier = Modifier.weight(1f)) {
